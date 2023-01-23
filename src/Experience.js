@@ -7,11 +7,27 @@ import CustomShaderMaterial from "three-custom-shader-material";
 
 import * as sphereShader from "./shaders";
 import { patchShaders } from "gl-noise/build/glNoise.m";
+import { useControls } from "leva";
 
 export default function Experience() {
   const sphere = useRef();
   const customShaderMat = useRef();
   const plane = useRef();
+
+  const { progress } = useControls({
+    progress: {
+      value: 0,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange: (val) => {
+        customShaderMat.current.uniforms.uProgress.value = val;
+        if (myShader) {
+          myShader.uniforms.uProgress.value = val;
+        }
+      },
+    },
+  });
 
   let myShader;
 
@@ -50,20 +66,39 @@ export default function Experience() {
                 shader.uniforms.uColor = {
                   value: new THREE.Color(0.0, 0.0, 0.0),
                 };
-                shader.uniforms.uTime = { value: 0, linked: true, mixed: true };
+                shader.uniforms.uTime = { value: 0 };
+                shader.uniforms.uProgress = { value: progress };
                 shader.vertexShader = shader.vertexShader.replace(
                   "#include <common>",
                   `
                 #include <common>
                 attribute float aRandom;
                 uniform float uTime;
+                uniform float uProgress;
+
+                mat4 rotationMatrix(vec3 axis, float angle) {
+                  axis = normalize(axis);
+                  float s = sin(angle);
+                  float c = cos(angle);
+                  float oc = 1.0 - c;
+                  
+                  return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+                              oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+                              oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+                              0.0,                                0.0,                                0.0,                                1.0);
+                  }
+                  
+                  vec3 rotate(vec3 v, vec3 axis, float angle) {
+                    mat4 m = rotationMatrix(axis, angle);
+                    return (m * vec4(v, 1.0)).xyz;
+                  }
                 `
                 );
                 shader.vertexShader = shader.vertexShader.replace(
                   "#include <begin_vertex>",
                   `#include <begin_vertex>
-
-                    transformed += aRandom*(.5 *sin(uTime) + .5)*normal;
+                    transformed = rotate(transformed, vec3(0., 1., 0.), uProgress);
+                    transformed += aRandom*uProgress*normal;
                 `
                 );
                 myShader = shader;
@@ -78,7 +113,8 @@ export default function Experience() {
           side={THREE.DoubleSide}
           uniforms={{
             uColor: { value: new THREE.Color(0.0, 0.0, 0.0) },
-            uTime: { value: 0, linked: true, mixed: true },
+            uTime: { value: 0 },
+            uProgress: { value: progress },
           }}
         />
       </mesh>
