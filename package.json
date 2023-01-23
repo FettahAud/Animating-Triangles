@@ -1,0 +1,43 @@
+{
+  "name": "exercise",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@react-three/drei": "^9.32.3",
+    "@react-three/fiber": "^8.8.7",
+    "babel-plugin-glsl": "^1.0.0",
+    "gl-noise": "^1.6.1",
+    "glsl-noise": "^0.0.0",
+    "glslify": "^7.1.1",
+    "leva": "^0.9.34",
+    "r3f-perf": "^6.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1",
+    "three": "^0.148.0",
+    "three-custom-shader-material": "^5.1.2"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/three": "^0.148.0"
+  }
+}
