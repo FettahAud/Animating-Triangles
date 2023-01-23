@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "react-scripts start",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "deploy": "vercel --prod"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +24,8 @@
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
     "three": "^0.148.0",
-    "three-custom-shader-material": "^5.1.2"
+    "three-custom-shader-material": "^5.1.2",
+    "vercel": "^28.13.0"
   },
   "browserslist": {
     "production": [
