@@ -19,7 +19,7 @@ export default function Experience() {
       value: 0,
       min: 0,
       max: 1,
-      step: 0.01,
+      step: 0.001,
       onChange: (val) => {
         customShaderMat.current.uniforms.uProgress.value = val;
         if (myShader) {
@@ -31,11 +31,13 @@ export default function Experience() {
 
   let myShader;
 
-  const geo = new THREE.SphereGeometry(1, 32, 32).toNonIndexed();
+  const geo = new THREE.IcosahedronGeometry(1, 10).toNonIndexed();
+  // const geo = new THREE.SphereGeometry(1, 32, 32).toNonIndexed();
 
   let len = geo.attributes.position.count;
 
   const randoms = new Float32Array(len * 3);
+  const centers = new Float32Array(len * 3);
 
   for (let i = 0; i < len; i += 3) {
     const r = Math.random();
@@ -45,6 +47,7 @@ export default function Experience() {
     randoms[i + 2] = r;
   }
   geo.setAttribute("aRandom", new THREE.BufferAttribute(randoms, 1));
+  geo.setAttribute("aCenter", new THREE.BufferAttribute(centers, 1));
 
   useFrame((state) => {
     customShaderMat.current.uniforms.uTime.value = state.clock.getElapsedTime();
@@ -97,8 +100,8 @@ export default function Experience() {
                 shader.vertexShader = shader.vertexShader.replace(
                   "#include <begin_vertex>",
                   `#include <begin_vertex>
-                    transformed = rotate(transformed, vec3(0., 1., 0.), uProgress);
-                    transformed += aRandom*uProgress*normal;
+                  transformed += aRandom*uProgress*normal;
+                  transformed = rotate(transformed, vec3(0., 1., 0.), uProgress*3.14*3.);
                 `
                 );
                 myShader = shader;
@@ -108,6 +111,7 @@ export default function Experience() {
         />
         <CustomShaderMaterial
           ref={customShaderMat}
+          color="#ff0000"
           baseMaterial={THREE.MeshStandardMaterial}
           vertexShader={patchShaders(sphereShader.vert)}
           side={THREE.DoubleSide}

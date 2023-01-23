@@ -26,9 +26,10 @@ void main() {
 
     vec3 pos = position;
 
-    pos = rotate(pos, vec3(0.0, 1.0, 0.0), uProgress);
-
     pos += aRandom*uProgress*normal;
+    
+    pos = rotate(pos, vec3(0.0, 1.0, 0.0), uProgress*3.14*3.);
+
     csm_PositionRaw = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
 `;
