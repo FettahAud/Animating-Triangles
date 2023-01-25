@@ -1,6 +1,7 @@
 export const vert = /*glsl*/ `
 varying vec2 vUv;
 attribute float aRandom;
+attribute float aCenter;
 uniform float uTime;
 uniform float uProgress;
 
@@ -28,7 +29,9 @@ void main() {
 
     pos += aRandom*uProgress*normal;
     
-    pos = rotate(pos, vec3(0.0, 1.0, 0.0), uProgress*3.14*3.);
+    // pos = rotate(pos, vec3(0.0, 1.0, 0.0), uProgress*3.14*3.);
+
+    pos = (pos - aCenter)*uProgress + aCenter;
 
     csm_PositionRaw = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
