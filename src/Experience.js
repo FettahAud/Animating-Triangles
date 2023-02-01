@@ -35,6 +35,7 @@ export default function Experience() {
   let objShader;
 
   const geo = new THREE.IcosahedronGeometry(1, 10).toNonIndexed();
+  // const geo = new THREE.PlaneGeometry(1, 1).toNonIndexed();
   // const geo = new THREE.SphereGeometry(1, 32, 32).toNonIndexed();
 
   let len = geo.attributes.position.count;
@@ -67,9 +68,11 @@ export default function Experience() {
       .divideScalar(3);
 
     centers.set([center.x, center.y, center.z], i * 3);
+    centers.set([center.x, center.y, center.z], (i + 1) * 3);
+    centers.set([center.x, center.y, center.z], (i + 2) * 3);
   }
   geo.setAttribute("aRandom", new THREE.BufferAttribute(randoms, 1));
-  geo.setAttribute("aCenter", new THREE.BufferAttribute(centers, 1));
+  geo.setAttribute("aCenter", new THREE.BufferAttribute(centers, 3));
 
   const customShader = (shader) => {
     shader.uniforms.uColor = {
@@ -107,10 +110,17 @@ export default function Experience() {
     shader.vertexShader = shader.vertexShader.replace(
       "#include <begin_vertex>",
       `#include <begin_vertex>
-      // transformed += aRandom*uProgress*normal;
-      // transformed = rotate(transformed, vec3(0., 1., 0.), uProgress*3.14*3.);
 
-      transformed = (transformed - aCenter)*uProgress + aCenter;
+      float prog = (position.y + 1.)/2.;
+      float localProg = clamp( (uProgress - 0.4*prog)/.2, 0., 1.);
+
+      transformed = transformed - aCenter;
+      transformed += 3.*normal*aRandom*localProg;
+      transformed *= (1.-localProg);
+      transformed += aCenter;
+
+      transformed = rotate(transformed, vec3(0., 1., 0.), aRandom*(localProg)*3.14*1.);
+      
     `
     );
   };
