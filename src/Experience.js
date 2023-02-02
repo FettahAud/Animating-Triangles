@@ -8,28 +8,29 @@ import CustomShaderMaterial from "three-custom-shader-material";
 import * as sphereShader from "./shaders";
 import { patchShaders } from "gl-noise/build/glNoise.m";
 import { useControls } from "leva";
+import { Model } from "./Models";
 
 export default function Experience() {
   const sphere = useRef();
   const customShaderMat = useRef();
   const plane = useRef();
 
-  const { progress } = useControls({
-    progress: {
-      value: 0,
-      min: 0,
-      max: 1,
-      step: 0.001,
-      onChange: (val) => {
-        if (shadowShader) {
-          shadowShader.uniforms.uProgress.value = val;
-        }
-        if (objShader) {
-          objShader.uniforms.uProgress.value = val;
-        }
-      },
-    },
-  });
+  // const { progress } = useControls({
+  //   progress: {
+  //     value: 0,
+  //     min: 0,
+  //     max: 1,
+  //     step: 0.001,
+  //     onChange: (val) => {
+  //       if (shadowShader) {
+  //         shadowShader.uniforms.uProgress.value = val;
+  //       }
+  //       if (objShader) {
+  //         objShader.uniforms.uProgress.value = val;
+  //       }
+  //     },
+  //   },
+  // });
 
   let shadowShader;
   let objShader;
@@ -79,7 +80,7 @@ export default function Experience() {
       value: new THREE.Color(0.0, 0.0, 0.0),
     };
     shader.uniforms.uTime = { value: 0 };
-    shader.uniforms.uProgress = { value: progress };
+    // shader.uniforms.uProgress = { value: progress };
     shader.vertexShader = shader.vertexShader.replace(
       "#include <common>",
       `
@@ -87,7 +88,7 @@ export default function Experience() {
     attribute float aRandom;
     attribute vec3 aCenter;
     uniform float uTime;
-    uniform float uProgress;
+    // uniform float uProgress;
 
     mat4 rotationMatrix(vec3 axis, float angle) {
       axis = normalize(axis);
@@ -111,8 +112,8 @@ export default function Experience() {
       "#include <begin_vertex>",
       `#include <begin_vertex>
 
-      float prog = (position.y + 1.)/2.;
-      float localProg = clamp( (uProgress - 0.4*prog)/.2, 0., 1.);
+      float prog = ((position.y + 1.)/2.) * 2.;
+      float localProg = clamp( (abs(sin(uTime)) - 0.4*prog)/.2, 0., 1.);
 
       transformed = transformed - aCenter;
       transformed += 3.*normal*aRandom*localProg;
@@ -126,6 +127,10 @@ export default function Experience() {
   };
 
   useFrame((state) => {
+    // console.log({
+    //   normal: Math.sin(state.clock.getElapsedTime()).toFixed(2),
+    //   test: Math.sin(state.clock.getElapsedTime()).toFixed(2),
+    // });
     if (shadowShader) {
       shadowShader.uniforms.uTime.value = state.clock.getElapsedTime();
     }
